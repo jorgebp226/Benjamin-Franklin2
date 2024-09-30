@@ -1,7 +1,7 @@
 // src/components/Calendar.js
 import React, { useState, useEffect } from 'react';
 import { virtues as allVirtues } from '../utils/virtues';
-import { getVirtues, getVirtuesWithRecords, createVirtueRecordAPI, updateVirtueRecordAPI } from '../api';
+import { getVirtuesWithRecords, createVirtueRecordAPI, updateVirtueRecordAPI } from '../api';
 import { getWeekNumber, getStartOfWeek } from '../utils/dateUtils';
 import './Calendar.css';
 
@@ -83,7 +83,6 @@ const Calendar = () => {
   };
 
   const getDayName = (dayIndex) => {
-    // Domingo = 0, Lunes = 1, ..., Sábado = 6
     return dayIndex === 0 ? 'Domingo' : daysOfWeek[dayIndex - 1];
   };
 
@@ -98,20 +97,18 @@ const Calendar = () => {
     const updatedRecords = { ...records };
     const currentStatus = updatedRecords[virtueId]?.[day];
 
-    // Alternar entre true, false y null
     let newStatus;
     if (currentStatus === true) {
-      newStatus = false; // Marcar como no cumplido (rojo)
+      newStatus = false;
     } else if (currentStatus === false) {
-      newStatus = null; // Quitar la marca
+      newStatus = null;
     } else {
-      newStatus = true; // Marcar como cumplido (verde)
+      newStatus = true;
     }
 
     updatedRecords[virtueId] = { ...updatedRecords[virtueId], [day]: newStatus };
     setRecords(updatedRecords);
 
-    // Obtener la fecha correspondiente
     const today = new Date();
     const startOfWeek = getStartOfWeek(today);
     const recordDate = new Date(startOfWeek);
@@ -119,11 +116,9 @@ const Calendar = () => {
     recordDate.setDate(startOfWeek.getDate() + dayIndex);
     const formattedDate = recordDate.toISOString().split('T')[0];
 
-    // Obtener el número de semana y el ID de la virtud objetivo de la semana
     const weekNumber = getWeekNumber(startOfWeek);
     const weekVirtueID = allVirtues[(weekNumber - 1) % allVirtues.length].id;
 
-    // Buscar el registro existente
     const existingRecords = await getVirtuesWithRecords(formattedDate, formattedDate);
     const existingRecord = existingRecords.find(
       (record) => record.virtueID === virtueId && record.date === formattedDate
@@ -139,7 +134,6 @@ const Calendar = () => {
         weekVirtueID: weekVirtueID,
       });
     } else {
-      // Crear un nuevo registro si no existe
       await createVirtueRecordAPI({
         virtueID: virtueId,
         status: newStatus,
@@ -167,9 +161,7 @@ const Calendar = () => {
 
     const improvements = allVirtues.map((virtue) => {
       const currentWeekSuccess = calculateSuccess(virtue.id);
-      // Para la semana anterior, necesitaríamos cargar los datos de esa semana
-      // Aquí simplificamos asumiendo que no hay datos anteriores
-      const previousWeekSuccess = 0; // Deberías implementar la lógica para obtener esto
+      const previousWeekSuccess = 0; // Implementar lógica para obtener la semana anterior si es necesario
 
       return {
         virtue: virtue.name,
